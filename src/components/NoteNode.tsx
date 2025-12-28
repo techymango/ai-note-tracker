@@ -192,9 +192,6 @@ Answer the user's question based on this context.
             </div>
 
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                import ReactMarkdown from 'react-markdown';
-
-                // ... (existing code)
 
                 {data.chatHistory.map((msg) => (
                     <div key={msg.id} className={cn("flex flex-col text-xs", msg.role === 'user' ? "items-end" : "items-start")}>

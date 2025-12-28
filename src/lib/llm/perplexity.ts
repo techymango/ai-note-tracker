@@ -1,5 +1,6 @@
 import type { Settings } from '../../types';
-import { JSON_FIX_PROMPT } from '../prompts';
+import { JSON_FIX_PROMPT, ANALYSIS_PROMPTS } from './prompts';
+import type { AIMode } from '../../types';
 
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 
@@ -121,5 +122,28 @@ export async function generateTitle(content: string, settings: Settings): Promis
     } catch (e) {
         console.error("Title generation failed", e);
         return "Untitled";
+    }
+}
+
+export async function runAnalysis(
+    notesContent: string,
+    mode: AIMode,
+    settings: Settings
+): Promise<string> {
+    const systemPrompt = ANALYSIS_PROMPTS[mode];
+
+    const messages: PerplexityMessage[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: notesContent }
+    ];
+
+    try {
+        return await callPerplexity(messages, settings, {
+            temperature: 0.3,
+            disable_search: true
+        });
+    } catch (e) {
+        console.error("Analysis failed", e);
+        throw e;
     }
 }

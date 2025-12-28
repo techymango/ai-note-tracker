@@ -6,7 +6,13 @@ import { callPerplexityJSON } from '../lib/llm/perplexity';
 import { CONNECT_SYSTEM_PROMPT, CONNECT_USER_TEMPLATE } from '../lib/prompts';
 
 export default function NotesTab() {
-    const notes = useStore((state) => state.notes);
+    const notes = useStore((state) => state.nodes
+        .filter(node => node.type === 'noteNode') // Ensure we only get note nodes
+        .map(node => ({
+            id: node.id,
+            ...node.data
+        }))
+    );
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (

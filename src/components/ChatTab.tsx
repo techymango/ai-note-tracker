@@ -5,7 +5,7 @@ import { callPerplexity } from '../lib/llm/perplexity';
 import { cn } from '../lib/utils';
 
 export default function ChatTab() {
-    const { chats, addChatMessage, document, notes, settings } = useStore();
+    const { chats, addChatMessage, document, nodes, settings } = useStore();
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -36,9 +36,9 @@ export default function ChatTab() {
         try {
             // Build Context
             const docContent = document?.sections?.map(s => `## ${s.title}\n${s.content}`).join('\n\n') || 'No master document yet.';
-            const connectedNotes = notes
-                .filter(n => n.status === 'connected')
-                .map(n => `- ${n.content} (Tags: ${n.tags.join(', ')})`)
+            const connectedNotes = nodes
+                .filter(n => n.type === 'noteNode' && n.data.status === 'connected')
+                .map(n => `- ${n.data.content} (Tags: ${n.data.tags.join(', ')})`)
                 .join('\n');
 
             const systemContext = `

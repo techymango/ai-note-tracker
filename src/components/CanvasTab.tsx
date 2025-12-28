@@ -10,6 +10,7 @@ import 'reactflow/dist/style.css';
 import { Plus } from 'lucide-react';
 import { useStore } from '../lib/store';
 import NoteNode from './NoteNode';
+import AnalysisPanel from './AnalysisPanel';
 
 const nodeTypes = {
     noteNode: NoteNode,
@@ -42,6 +43,7 @@ function CanvasContent() {
             >
                 <Background gap={20} size={1} color="#3f3f46" />
                 <Controls className="bg-zinc-800 border-zinc-700 fill-zinc-400" />
+                <AnalysisPanel />
 
                 <Panel position="bottom-right">
                     <button

@@ -8,7 +8,7 @@ import {
     type NodeChange,
     type Edge
 } from 'reactflow';
-import type { AppNode, MasterDocument, ChatMessage, Settings } from '../types';
+import type { AppNode, MasterDocument, ChatMessage, Settings, AnalysisConfig } from '../types';
 import { db } from './db';
 
 interface AppState {
@@ -16,6 +16,8 @@ interface AppState {
     edges: Edge[];
     document: MasterDocument | null;
     settings: Settings;
+    analysisConfig: AnalysisConfig;
+    chats: ChatMessage[]; // Global chat history
 
     // Actions
     loadInitialData: () => Promise<void>;
@@ -28,13 +30,16 @@ interface AppState {
     onEdgesChange: (changes: EdgeChange[]) => void;
     onConnect: (connection: Connection) => void;
     deleteNode: (id: string) => Promise<void>;
+    updateNoteStatus: (id: string, status: 'draft' | 'connected') => Promise<void>;
 
     // Chat Actions
     addNodeChatMessage: (nodeId: string, msg: ChatMessage) => Promise<void>;
+    addChatMessage: (msg: ChatMessage) => Promise<void>; // Global chat
 
     // Legacy/Shared
     updateDocument: (doc: MasterDocument) => Promise<void>;
     updateSettings: (settings: Partial<Settings>) => Promise<void>;
+    setAnalysisConfig: (config: Partial<AnalysisConfig>) => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -46,6 +51,12 @@ export const useStore = create<AppState>((set, get) => ({
         model: 'sonar-pro',
         theme: 'dark',
     },
+    analysisConfig: {
+        mode: 'summary',
+        scope: 'selection',
+        includeTags: [],
+    },
+    chats: [],
 
     loadInitialData: async () => {
         const nodes = await db.getNodes();
@@ -58,6 +69,9 @@ export const useStore = create<AppState>((set, get) => ({
             edges,
             document: doc || { sections: [], lastUpdated: 0 },
             settings: settings || { apiKey: '', model: 'sonar-pro', theme: 'dark' },
+            // Load global chats if we had persistence for it?
+            // For now, ephemeral or simplistic load.
+            // If we want persistance, we should add db.getChats()
         });
     },
 
@@ -151,8 +165,18 @@ export const useStore = create<AppState>((set, get) => ({
 
         // Persistence
         await db.deleteNode(id);
-        // Also delete connected edges? Ideally yes.
-        // Simplifying DB operations for now.
+    },
+
+    updateNoteStatus: async (id, status) => {
+        const nodes = get().nodes.map(node => {
+            if (node.id === id) {
+                return { ...node, data: { ...node.data, status, updatedAt: Date.now() } };
+            }
+            return node;
+        });
+        set({ nodes });
+        const updated = nodes.find(n => n.id === id);
+        if (updated) await db.saveNode(updated);
     },
 
     addNodeChatMessage: async (nodeId, msg) => {
@@ -174,6 +198,11 @@ export const useStore = create<AppState>((set, get) => ({
         if (updatedNode) await db.saveNode(updatedNode);
     },
 
+    addChatMessage: async (msg) => {
+        set({ chats: [...get().chats, msg] });
+        // TODO: Persist global chats if needed.
+    },
+
     updateDocument: async (doc) => {
         await db.saveDocument(doc);
         set({ document: doc });
@@ -184,5 +213,9 @@ export const useStore = create<AppState>((set, get) => ({
         const updated = { ...state.settings, ...newSettings };
         await db.saveSettings(updated);
         set({ settings: updated });
+    },
+
+    setAnalysisConfig: (config) => {
+        set({ analysisConfig: { ...get().analysisConfig, ...config } });
     },
 }));

@@ -1,43 +1,67 @@
-# AI Note-Taker
+# AI Thinking Companion (formerly AI Note-Taker)
 
-A mobile-first, local-first note-taking app powered by Perplexity AI.
+A local-first, privacy-focused "Thinking Companion" that helps you synthesize, explore, and evolve your ideas using AI. It goes beyond simple note storage to actively connect dots and surface insights.
 
-## Features
-- **Mobile-First UI**: Bottom tab navigation, dark theme, touch-optimized.
-- **Local Persistence**: All data stored locally using IndexedDB.
-- **AI Integration**: "Connect" notes to a Master Document using Perplexity Sonar Pro.
-- **Context-Aware Chat**: Chat with your notes and master document.
-- **Secure**: API Key stored in browser, not on any server.
+## 🚀 Key Features
 
-## Setup
+### 🧠 AI Insight Modes
+Instead of just "chatting", apply specific lenses to your notes:
+- **SUMMARY**: Weaves selected notes into a coherent narrative.
+- **CONTRADICTIONS**: Finds conflicting facts or tension points.
+- **KNOWLEDGE GAPS**: Identifies what's missing and suggests questions.
+- **MENTAL MODELS**: Proposes frameworks (e.g., First Principles) to explain your ideas.
+- **ACTION ITEMS**: Extracts concrete next steps.
+- **CONNECT**: Synthesizes notes into a structured **Master Document**.
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+### 🎮 Interactive Context Control
+- **Selection-Based Analysis**: Select specific notes on the canvas to scope the AI's analysis.
+- **Master Document**: A living document that evolves as you connect more notes.
 
-2. **Environment Setup**
-   Create a `.env.local` file (optional, or set in UI Settings):
-   ```
-   VITE_PERPLEXITY_API_KEY=your_pplx_key_here
-   ```
+### 🗺️ Visual Knowledge Graph
+- **Canvas View**: Visualize your notes as nodes on an infinite canvas.
+- **Spatial Organization**: Drag and arrange notes to group related concepts.
 
-3. **Run Locally**
-   ```bash
-   npm run dev
-   ```
+### 🔒 Privacy & Local-First
+- **Client-Side Storage**: All notes and data live in your browser's IndexedDB.
+- **Direct API Calls**: Your API key stays on your device and calls Perplexity directly. No middleman servers.
 
-## Tech Stack
-- React 18 + TypeScript + Vite
-- Tailwind CSS
-- Zustand (State Management)
-- IDB (IndexedDB Wrapper)
-- Lucide React (Icons)
+---
 
-## Workflow
-1. Create a Note in the **Notes** tab.
-2. Tap **Connect** to have AI analyze it and update the **Master Document**.
-3. View the consolidated knowledge in the **Doc** tab.
-4. Ask questions in the **Chat** tab.
-# ai_note_taker
-# ai_note_taker
+## 🏗️ Architecture & Codebase
+
+### Tech Stack
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, Lucide React (Icons)
+- **State Management**: Zustand (Global Store)
+- **Visualization**: React Flow (Graph Canvas)
+- **AI Integration**: Perplexity API (`sonar-pro` model)
+- **Persistence**: `idb` (IndexedDB Wrapper)
+
+### Key Directories
+- **`src/components/`**: UI Components.
+    - `CanvasTab.tsx`: The main graph view context.
+    - `AnalysisPanel.tsx`: The floating AI brain panel.
+    - `NotesTab.tsx` / `ChatTab.tsx`: Feature-specific views.
+- **`src/lib/`**: Core logic.
+    - `store.ts`: Central Zustand store. Manages `nodes`, `edges`, `document`, and `settings`.
+    - `db.ts`: IndexedDB database layer for saving/loading data.
+    - `llm/`: AI logic.
+        - `perplexity.ts`: Handles API calls to Perplexity.
+        - `prompts.ts`: System prompts for different AI modes.
+
+### Data Flow
+1.  **User Input** → Creates a `Note` (Draft).
+2.  **Selection** → User selects notes on Canvas or List.
+3.  **AI Analysis** (`AnalysisPanel`) →
+    *   Reads selected notes.
+    *   Selects Prompt Template based on Mode (`prompts.ts`).
+    *   Calls Perplexity API (`perplexity.ts`).
+4.  **Result** →
+    *   *Insight*: displayed in the panel.
+    *   *Connect*: updates the `MasterDocument` in `store`.
+
+## 🛠️ Setup
+
+1.  **Install**: `npm install`
+2.  **Run**: `npm run dev`
+3.  **Configure**: Open the **Settings** tab and enter your Perplexity API Key.

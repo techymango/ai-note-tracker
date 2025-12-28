@@ -50,3 +50,11 @@ export interface NoteNodeData {
 export type AppNode = Node<NoteNodeData>;
 
 
+
+export type AIMode = 'summary' | 'contradictions' | 'gaps' | 'mental_model' | 'action_items' | 'connect';
+
+export interface AnalysisConfig {
+    mode: AIMode;
+    scope: 'all' | 'selection' | 'view';
+    includeTags: string[];
+}
